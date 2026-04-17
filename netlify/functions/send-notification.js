@@ -32,16 +32,15 @@ exports.handler = async (event) => {
     return { statusCode: 401, body: "Invalid token" };
   }
 
-  // Now accepts an array of tokens in one call
-  const { tokens, title, body, type } = JSON.parse(event.body || "{}");
+  const { token, title, body, type } = JSON.parse(event.body || "{}");
 
-  if (!tokens || !tokens.length || !title || !body) {
+  if (!token || !title || !body) {
     return { statusCode: 400, body: "Missing fields" };
   }
 
   try {
-    const response = await getMessaging().sendEachForMulticast({
-      tokens,
+    await getMessaging().send({
+      token,
       notification: { title, body },
       data: { type: type || "open" },
       apns: {
@@ -66,21 +65,10 @@ exports.handler = async (event) => {
       }
     });
 
-    const successCount = response.responses.filter(r => r.success).length;
-    const failCount    = response.responses.filter(r => !r.success).length;
-
-    console.log(`Sent to ${successCount} members, ${failCount} failed`);
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true, successCount, failCount })
-    };
+    return { statusCode: 200, body: JSON.stringify({ success: true }) };
 
   } catch (err) {
     console.error("FCM send error:", err.message);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ success: false, error: err.message })
-    };
+    return { statusCode: 200, body: JSON.stringify({ success: false, error: err.message }) };
   }
 };
