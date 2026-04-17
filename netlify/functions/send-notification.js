@@ -39,28 +39,31 @@ exports.handler = async (event) => {
   }
 
   try {
+    // Send ONLY via APNs (Apple) — no webpush section
+    // This prevents FCM from delivering through two channels on iOS
     await getMessaging().send({
       token,
       notification: { title, body },
       data: { type: type || "open" },
       apns: {
         headers: {
-          "apns-priority": "10",
-          "apns-collapse-id": "clubhouse-status"
+          "apns-priority":     "10",
+          "apns-collapse-id":  "clubhouse-status"
         },
         payload: {
           aps: {
-            sound: "default",
-            badge: 1
+            sound:   "default",
+            badge:   1,
+            alert: { title, body }
           }
         }
       },
       android: {
-        priority: "high",
+        priority:    "high",
         collapseKey: "clubhouse-status",
         notification: {
           sound: "default",
-          tag: "clubhouse-status"
+          tag:   "clubhouse-status"
         }
       }
     });
