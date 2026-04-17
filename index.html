@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Jealous Mistress</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0a1628" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Jealous Mistress" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:    #0a1628;
+      --deep:    #060e1a;
+      --brass:   #c9932a;
+      --gold:    #e8b84b;
+      --rust:    #8b3a2a;
+      --fog:     #a8b8c8;
+      --cream:   #f0e6d0;
+      --rope:    #7a6040;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--deep);
+      color: var(--cream);
+      font-family: 'Crimson Text', Georgia, serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated sea background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 80%, rgba(10,22,40,0.9) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(139,58,42,0.15) 0%, transparent 50%),
+        linear-gradient(180deg, #060e1a 0%, #0a1628 40%, #0d1e35 100%);
+      z-index: 0;
+    }
+
+    /* Rope border top */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--brass) 0px, var(--brass) 8px,
+        var(--rope) 8px, var(--rope) 16px,
+        var(--gold) 16px, var(--gold) 20px,
+        var(--rope) 20px, var(--rope) 28px
+      );
+      z-index: 100;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 24px 40px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .compass-rose {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      animation: spin-slow 30s linear infinite;
+    }
+
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 6vw, 3rem);
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-shadow: 0 0 40px rgba(232,184,75,0.4), 0 2px 4px rgba(0,0,0,0.8);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      font-family: 'Crimson Text', serif;
+      font-style: italic;
+      color: var(--fog);
+      font-size: 1rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px auto;
+      width: 260px;
+    }
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--brass), transparent);
+    }
+    .divider-anchor { font-size: 1.1rem; color: var(--brass); }
+
+    /* ── Status card ── */
+    .status-card {
+      background: linear-gradient(145deg, rgba(15,28,50,0.9), rgba(10,22,40,0.95));
+      border: 1px solid rgba(201,147,42,0.3);
+      border-radius: 4px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      position: relative;
+      margin-bottom: 32px;
+      box-shadow:
+        0 0 0 1px rgba(201,147,42,0.1),
+        0 20px 60px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(201,147,42,0.2);
+    }
+
+    .status-card::before, .status-card::after {
+      content: '✦';
+      position: absolute;
+      color: var(--brass);
+      font-size: 0.7rem;
+      opacity: 0.6;
+    }
+    .status-card::before { top: 10px; left: 14px; }
+    .status-card::after  { bottom: 10px; right: 14px; }
+
+    .port-light {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      transition: all 0.8s ease;
+      position: relative;
+    }
+
+    .port-light.open {
+      background: radial-gradient(circle, rgba(40,180,60,0.3), rgba(20,100,30,0.1));
+      border: 2px solid rgba(40,180,60,0.6);
+      box-shadow: 0 0 30px rgba(40,200,60,0.4), 0 0 60px rgba(40,200,60,0.2);
+      animation: pulse-green 2s ease-in-out infinite;
+    }
+
+    .port-light.closed {
+      background: radial-gradient(circle, rgba(180,40,40,0.3), rgba(100,20,20,0.1));
+      border: 2px solid rgba(180,40,40,0.6);
+      box-shadow: 0 0 30px rgba(200,40,40,0.4), 0 0 60px rgba(200,40,40,0.2);
+    }
+
+    .port-light.unknown {
+      background: radial-gradient(circle, rgba(100,120,150,0.2), transparent);
+      border: 2px solid rgba(100,120,150,0.3);
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 30px rgba(40,200,60,0.4), 0 0 60px rgba(40,200,60,0.2); }
+      50%       { box-shadow: 0 0 50px rgba(40,200,60,0.7), 0 0 90px rgba(40,200,60,0.35); }
+    }
+
+    .status-label {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .status-label.open   { color: #5de87a; }
+    .status-label.closed { color: #e85d5d; }
+    .status-label.unknown { color: var(--fog); }
+
+    .status-time {
+      font-style: italic;
+      color: var(--fog);
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    /* ── Notification permission ── */
+    .permission-section {
+      width: 100%;
+      max-width: 380px;
+      margin-bottom: 28px;
+    }
+
+    .permission-btn {
+      width: 100%;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, var(--brass), var(--gold));
+      border: none;
+      border-radius: 3px;
+      color: var(--deep);
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(201,147,42,0.3);
+    }
+
+    .permission-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201,147,42,0.5);
+    }
+
+    .permission-btn:active { transform: translateY(0); }
+
+    .permission-btn.granted {
+      background: linear-gradient(135deg, #2a6640, #3a8a50);
+      color: var(--cream);
+      cursor: default;
+    }
+
+    .permission-btn.granted:hover { transform: none; }
+
+    .permission-status {
+      text-align: center;
+      font-style: italic;
+      color: var(--fog);
+      font-size: 0.85rem;
+      margin-top: 10px;
+      min-height: 20px;
+    }
+
+    /* ── Install prompt ── */
+    .install-section {
+      width: 100%;
+      max-width: 380px;
+      margin-bottom: 28px;
+    }
+
+    .install-btn {
+      width: 100%;
+      padding: 14px 24px;
+      background: transparent;
+      border: 1px solid rgba(201,147,42,0.4);
+      border-radius: 3px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .install-btn:hover {
+      background: rgba(201,147,42,0.1);
+      border-color: var(--gold);
+    }
+
+    /* ── iOS install instructions ── */
+    .ios-instructions {
+      width: 100%;
+      max-width: 380px;
+      background: rgba(201,147,42,0.08);
+      border: 1px solid rgba(201,147,42,0.2);
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 28px;
+      display: none;
+    }
+
+    .ios-instructions h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .ios-instructions ol {
+      padding-left: 20px;
+      color: var(--fog);
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: auto;
+      text-align: center;
+      color: rgba(168,184,200,0.3);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ── Notification toast ── */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: linear-gradient(135deg, rgba(15,28,50,0.98), rgba(10,22,40,0.98));
+      border: 1px solid var(--brass);
+      border-radius: 4px;
+      padding: 16px 28px;
+      color: var(--cream);
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      z-index: 1000;
+      transition: transform 0.4s ease;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      text-align: center;
+      max-width: 320px;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .waves {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 120px;
+      z-index: 0;
+      opacity: 0.06;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<svg class="waves" viewBox="0 0 1440 120" preserveAspectRatio="none">
+  <path d="M0,60 C180,100 360,20 540,60 C720,100 900,20 1080,60 C1260,100 1380,40 1440,60 L1440,120 L0,120 Z" fill="#c9932a"/>
+  <path d="M0,80 C200,40 400,100 600,70 C800,40 1000,90 1200,65 C1320,50 1400,80 1440,75 L1440,120 L0,120 Z" fill="#e8b84b" opacity="0.5"/>
+</svg>
+
+<div class="app">
+  <header class="header">
+    <svg class="compass-rose" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="38" stroke="#c9932a" stroke-width="1" opacity="0.4"/>
+      <circle cx="40" cy="40" r="30" stroke="#c9932a" stroke-width="0.5" opacity="0.3"/>
+      <path d="M40 4 L44 36 L40 40 L36 36 Z" fill="#e8b84b"/>
+      <path d="M40 76 L44 44 L40 40 L36 44 Z" fill="#c9932a" opacity="0.6"/>
+      <path d="M4 40 L36 44 L40 40 L36 36 Z" fill="#c9932a" opacity="0.6"/>
+      <path d="M76 40 L44 36 L40 40 L44 44 Z" fill="#e8b84b" opacity="0.8"/>
+      <text x="40" y="17" text-anchor="middle" font-family="Cinzel,serif" font-size="7" fill="#e8b84b" font-weight="600">N</text>
+      <text x="40" y="71" text-anchor="middle" font-family="Cinzel,serif" font-size="6" fill="#c9932a" opacity="0.7">S</text>
+      <text x="69" y="43" text-anchor="middle" font-family="Cinzel,serif" font-size="6" fill="#c9932a" opacity="0.7">E</text>
+      <text x="11" y="43" text-anchor="middle" font-family="Cinzel,serif" font-size="6" fill="#c9932a" opacity="0.7">W</text>
+      <circle cx="40" cy="40" r="4" fill="#c9932a"/>
+      <circle cx="40" cy="40" r="2" fill="#e8b84b"/>
+    </svg>
+
+    <h1 class="title">The Jealous<br>Mistress</h1>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-anchor">⚓</span>
+      <div class="divider-line"></div>
+    </div>
+    <p class="subtitle">Members' Clubhouse</p>
+  </header>
+
+  <div class="status-card">
+    <div class="port-light unknown" id="portLight">🌊</div>
+    <div class="status-label unknown" id="statusLabel">Awaiting Signal</div>
+    <div class="status-time" id="statusTime">No word from the helm</div>
+  </div>
+
+  <div class="permission-section">
+    <button class="permission-btn" id="notifBtn" onclick="requestNotifications()">
+      ⚓ &nbsp; Enable Alarm Notifications
+    </button>
+    <div class="permission-status" id="permStatus"></div>
+  </div>
+
+  <div class="install-section" id="installSection" style="display:none;">
+    <button class="install-btn" onclick="installApp()">
+      📲 &nbsp; Add to Home Screen
+    </button>
+  </div>
+
+  <div class="ios-instructions" id="iosInstructions">
+    <h3>⚓ Install on iPhone</h3>
+    <ol>
+      <li>Tap the <strong>Share</strong> button (box with arrow) in Safari</li>
+      <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+      <li>Tap <strong>Add</strong> — done!</li>
+    </ol>
+  </div>
+
+  <footer class="footer">
+    Est. on these waters &nbsp;·&nbsp; Members only
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Regular script — onclick handlers MUST live here, not in type="module" -->
+<script>
+  // ── Sound synthesis ──
+  function playAlarmSound(isOpen) {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    isOpen ? playFoghorn(ctx) : playShipBell(ctx);
+  }
+
+  function playFoghorn(ctx) {
+    const t = ctx.currentTime;
+    [58, 60, 62].forEach((note, i) => {
+      const freq   = 440 * Math.pow(2, (note - 69) / 12);
+      const osc    = ctx.createOscillator();
+      const gain   = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, t);
+      osc.frequency.setValueAtTime(freq * 0.97, t + 0.5);
+      osc.frequency.setValueAtTime(freq, t + 1.5);
+      osc.frequency.setValueAtTime(freq * 0.99, t + 2.5);
+
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.25 - i * 0.05, t + 0.15);
+      gain.gain.setValueAtTime(0.25 - i * 0.05, t + 2.8);
+      gain.gain.linearRampToValueAtTime(0, t + 3.5);
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 400 + i * 80;
+      filter.Q.value = 3;
+
+      osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 3.6);
+    });
+  }
+
+  function playShipBell(ctx) {
+    const t = ctx.currentTime;
+    [{ freq: 880, decay: 3.0, vol: 0.3 }, { freq: 1760, decay: 2.0, vol: 0.15 },
+     { freq: 2640, decay: 1.2, vol: 0.08 }, { freq: 3520, decay: 0.8, vol: 0.05 }]
+    .forEach(({ freq, decay, vol }) => {
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(vol, t + 0.001);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + decay + 0.1);
+    });
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.05, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++)
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.01));
+    const noise = ctx.createBufferSource(), ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.2, t);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    noise.buffer = buf; noise.connect(ng); ng.connect(ctx.destination); noise.start(t);
+  }
+
+  // ── Toast ──
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+
+  // ── requestNotifications bridges onclick → Firebase module ──
+  window.requestNotifications = function () {
+    if (window._fbRequestNotifications) {
+      window._fbRequestNotifications();
+    } else {
+      document.getElementById('permStatus').textContent = 'Still loading — please try again in a moment.';
+    }
+  };
+
+  // ── Install prompt ──
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('installSection').style.display = 'block';
+  });
+
+  window.installApp = async function () {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      document.getElementById('installSection').style.display = 'none';
+      showToast('⚓ App installed to home screen!');
+    }
+    deferredPrompt = null;
+  };
+
+  // ── iOS detection ──
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS && !window.matchMedia('(display-mode: standalone)').matches)
+    document.getElementById('iosInstructions').style.display = 'block';
+
+  // ── Service worker — silently skips in preview, works fine on Netlify ──
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(() => {});
+  }
+</script>
+
+<!-- Firebase SDK (module) -->
+<script type="module">
+  import { initializeApp }                         from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getMessaging, getToken, onMessage }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
+  import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🔧 PASTE YOUR FIREBASE CONFIG BELOW
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  const firebaseConfig = {
+    apiKey:            "AIzaSyD1i_hWah1vZOUPugh-3AoaGu78aokn_PU",
+    authDomain:        "the-jealous-mistress-31e8a.firebaseapp.com",
+    projectId:         "the-jealous-mistress-31e8a",
+    storageBucket:     "the-jealous-mistress-31e8a.firebasestorage.app",
+    messagingSenderId: "327568458075",
+    appId:             "1:327568458075:web:14d292c7c7d46536f7da7e"
+  };
+  const VAPID_KEY = "BBW7JbRE5n0Q3Vsp3jt-DFj2CeLpg3lAtd9Aw8RcwAOZThdW4GMWZ8YDC0yyWBuqKOBbMlPr3YG3XgjNgMQ68yE";
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  const fbApp     = initializeApp(firebaseConfig);
+  const messaging = getMessaging(fbApp);
+  const db        = getFirestore(fbApp);
+
+  // Live status listener
+  onSnapshot(doc(db, "clubhouse", "status"), snap => {
+    if (!snap.exists()) return;
+    const { isOpen, updatedAt } = snap.data();
+    const light  = document.getElementById('portLight');
+    const label  = document.getElementById('statusLabel');
+    const timeEl = document.getElementById('statusTime');
+
+    if (isOpen === true) {
+      light.className = 'port-light open';   light.textContent = '🟢';
+      label.className = 'status-label open'; label.textContent = 'OPEN — All Welcome';
+    } else if (isOpen === false) {
+      light.className = 'port-light closed';   light.textContent = '🔴';
+      label.className = 'status-label closed'; label.textContent = 'CLOSED — Seas Are Dark';
+    }
+    if (updatedAt) {
+      const fmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', weekday: 'short' });
+      timeEl.textContent = 'Last signal: ' + fmt.format(updatedAt.toDate());
+    }
+  });
+
+  // Foreground push notifications
+  onMessage(messaging, payload => {
+    const { title, body } = payload.notification || {};
+    showToast(`${title}: ${body}`);
+    playAlarmSound(payload.data?.type === 'open');
+  });
+
+  // Wire up to window so onclick can reach it
+  window._fbRequestNotifications = async function () {
+    const btn    = document.getElementById('notifBtn');
+    const status = document.getElementById('permStatus');
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+        btn.textContent = '✓  Alarms Enabled';
+        btn.className   = 'permission-btn granted';
+        status.textContent = 'You will receive open & close alarms.';
+        await setDoc(doc(db, "members", token), { token, joinedAt: new Date() });
+      } else {
+        status.textContent = 'Notifications blocked — check your browser settings.';
+      }
+    } catch (err) {
+      status.textContent = 'Could not enable notifications. ' + err.message;
+    }
+  };
+
+  // Check existing permission on load
+  if (Notification.permission === 'granted') {
+    document.getElementById('notifBtn').textContent = '✓  Alarms Enabled';
+    document.getElementById('notifBtn').className   = 'permission-btn granted';
+    document.getElementById('permStatus').textContent = 'You will receive open & close alarms.';
+  }
+</script>
+
+</body>
+</html>
