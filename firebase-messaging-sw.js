@@ -4,9 +4,6 @@
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js");
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🔧 PASTE THE SAME FIREBASE CONFIG HERE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 firebase.initializeApp({
   apiKey: "AIzaSyD1i_hWah1vZOUPugh-3AoaGu78aokn_PU",
   authDomain: "the-jealous-mistress-31e8a.firebaseapp.com",
@@ -18,31 +15,9 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Handle background push notifications
-messaging.onBackgroundMessage((payload) => {
-  console.log("[firebase-messaging-sw.js] Received background message:", payload);
-
-  const { title, body } = payload.notification || {};
-  const isOpen = payload.data?.type === "open";
-
-  const notificationOptions = {
-    body: body || (isOpen ? "The Jealous Mistress is now open!" : "The Jealous Mistress is now closed."),
-    icon: isOpen ? "/icon-open.png" : "/icon-closed.png",
-    badge: "/icon-192.png",
-    tag: "clubhouse-status",        // Replaces previous notification (no stacking)
-    renotify: true,
-    requireInteraction: false,
-    vibrate: isOpen
-      ? [200, 100, 200, 100, 200]   // 3 short blasts (foghorn)
-      : [400, 200, 400],             // 2 longer tolls (ship's bell)
-    data: { url: "/" }
-  };
-
-  self.registration.showNotification(
-    title || (isOpen ? "⚓ Clubhouse OPEN" : "🔔 Clubhouse CLOSED"),
-    notificationOptions
-  );
-});
+// NOTE: We do NOT call messaging.onBackgroundMessage() here.
+// FCM delivers the notification automatically from the push payload.
+// Adding onBackgroundMessage() would cause a duplicate notification.
 
 // Clicking the notification opens/focuses the app
 self.addEventListener("notificationclick", (event) => {
