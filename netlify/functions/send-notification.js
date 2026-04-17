@@ -32,52 +32,55 @@ exports.handler = async (event) => {
     return { statusCode: 401, body: "Invalid token" };
   }
 
-  const { token, title, body, type } = JSON.parse(event.body || "{}");
+  // Now accepts an array of tokens in one call
+  const { tokens, title, body, type } = JSON.parse(event.body || "{}");
 
-  if (!token || !title || !body) {
+  if (!tokens || !tokens.length || !title || !body) {
     return { statusCode: 400, body: "Missing fields" };
   }
 
   try {
-    // Send a single unified message — FCM delivers it once per token
-    await getMessaging().send({
-      token,
-      notification: {
-        title,
-        body
-      },
-      data: {
-        type: type || "open"
-      },
-      // iOS settings
+    const response = await getMessaging().sendEachForMulticast({
+      tokens,
+      notification: { title, body },
+      data: { type: type || "open" },
       apns: {
         headers: {
           "apns-priority": "10",
-          "apns-collapse-id": "clubhouse-status"  // collapses duplicates into one
+          "apns-collapse-id": "clubhouse-status"
         },
         payload: {
           aps: {
             sound: "default",
-            badge: 1,
-            "content-available": 1
+            badge: 1
           }
         }
       },
-      // Android settings
       android: {
         priority: "high",
-        collapseKey: "clubhouse-status",  // collapses duplicates into one
+        collapseKey: "clubhouse-status",
         notification: {
           sound: "default",
-          tag: "clubhouse-status"         // replaces previous notification
+          tag: "clubhouse-status"
         }
       }
     });
 
-    return { statusCode: 200, body: JSON.stringify({ success: true }) };
+    const successCount = response.responses.filter(r => r.success).length;
+    const failCount    = response.responses.filter(r => !r.success).length;
+
+    console.log(`Sent to ${successCount} members, ${failCount} failed`);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true, successCount, failCount })
+    };
 
   } catch (err) {
     console.error("FCM send error:", err.message);
-    return { statusCode: 200, body: JSON.stringify({ success: false, error: err.message }) };
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ success: false, error: err.message })
+    };
   }
 };
